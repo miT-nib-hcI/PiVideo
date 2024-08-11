@@ -28,6 +28,9 @@ cd ~/PiVideo/
 
 wget -L "https://raw.githubusercontent.com/miT-nib-hcI/PiVideo/main/video.py"
 
+wget -L "https://raw.githubusercontent.com/miT-nib-hcI/PiVideo/main/start.sh"
+wget -L "https://raw.githubusercontent.com/miT-nib-hcI/PiVideo/main/stop.sh"
+wget -L "https://raw.githubusercontent.com/miT-nib-hcI/PiVideo/main/reload.sh"
 
 echo  -e "${GREEN}======== Holle Videos========${NOCOLOR}"
 
