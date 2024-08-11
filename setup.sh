@@ -32,6 +32,8 @@ wget -L "https://raw.githubusercontent.com/miT-nib-hcI/PiVideo/main/start.sh"
 wget -L "https://raw.githubusercontent.com/miT-nib-hcI/PiVideo/main/stop.sh"
 wget -L "https://raw.githubusercontent.com/miT-nib-hcI/PiVideo/main/reload.sh"
 
+chmod 755 *.sh
+
 echo  -e "${GREEN}======== Holle Videos========${NOCOLOR}"
 
 cd videos/
@@ -42,23 +44,11 @@ cd ..
 
 echo  -e "${GREEN}======== Erestele Systemd Service ========${NOCOLOR}"
 
-AUTOLOGIN_SERVICE_CONTENT="[Unit]
-Description=Automatic Console Login
-After=rc-local.service plymouth-quit-wait.service
-After=systemd-user-sessions.service
-After=network.target
-After=network-online.target
-Wants=network-online.target
-
-[Service]
-ExecStart=-/sbin/agetty --autologin $CURRENT_USER --noclear %I \$TERM
-Type=idle
-Restart=always
-RestartSec=0
-
-[Install]
-WantedBy=multi-user.target
+AUTOLOGIN_SERVICE_CONTENT="[Service]
+ExecStart=
+ExecStart=-/sbin/agetty --autologin $CURRENT_USER --noclear tty1 linux
 "
+
 
 SERVICE_CONTENT="[Unit]
 Description=Video Control Script
