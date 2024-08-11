@@ -34,8 +34,8 @@ wget -L "https://raw.githubusercontent.com/miT-nib-hcI/PiVideo/main/video.py"
 echo  -e "${GREEN}======== Holle Videos========${NOCOLOR}"
 
 cd videos/
-wget -L "https://github.com/miT-nib-hcI/PiVideo/raw/main/loop.mp4"
-wget -L "https://github.com/miT-nib-hcI/PiVideo/raw/main/trigger.mp4"
+wget -L "https://raw.githubusercontent.com/miT-nib-hcI/PiVideo/main/videos/loop.mp4"
+wget -L "https://raw.githubusercontent.com/miT-nib-hcI/PiVideo/main/videos/trigger.mp4"
 
 cd ..
 
