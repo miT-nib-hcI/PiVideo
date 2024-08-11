@@ -18,7 +18,7 @@ echo  -e "${GREEN}======== Führe Update durch =========${NOCOLOR}"
 sudo apt update && sudo apt upgrade -y
 
 echo  -e "${GREEN}======== Installiere Abhängigkeiten =========${NOCOLOR}"
-sduo apt install vlc python3-rpi.gpio git -y
+sudo apt install vlc python3-rpi.gpio git -y
 
 
 echo  -e "${GREEN}======== Holle Datein ========${NOCOLOR}"
