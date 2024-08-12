@@ -20,6 +20,7 @@ Since it is a realativly simple Python script you can modify as needed.
 The videos which are played are in the videos folder, as the nameing of the files suggests the loop.mp4 is played on loop and the trigger.mp4 is played once when the GPIO button has been pressed.
 You can replace the files as needed with your own files. The files included right now are just for demonstration.
 
+```
 - PiVideo/
     |- videos/
     |   |- loop.mp4
@@ -28,5 +29,6 @@ You can replace the files as needed with your own files. The files included righ
     |- start.sh
     |- stop.sh
     |- reload.sh
+```
 
 The button to trigger the video switch is by default conected to GPIO 17 and GND, you can change this in the Scipt itself if needed.
