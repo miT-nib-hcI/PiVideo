@@ -1,5 +1,8 @@
 # PiVideo
 
+## TO-DO
+- Add GPIO Shutdown and Start option to Script [see](https://raspberrypi.stackexchange.com/questions/117013/raspberry-pi-4-b-gpio-boot-and-shutdown-buttons)
+
 ## Overview
 
 This is a collection of scripts which run a video in a loop until a Button connected to GPIO is Pressed.
