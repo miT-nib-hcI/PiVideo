@@ -1,9 +1,17 @@
 #! /bin/bash
 
+# Definition of colors for text output
 GREEN='\033[0;32m'
+CYAN_BACK='\x1b[46m'
+
 NOCOLOR='\033[0m'
 
 echo  -e "${GREEN}======== Starte Installation =========${NOCOLOR}"
+
+echo -e "${CYAN_BACK} Would you like to enable the System D service for atomatic start of video planback?"
+read USERSELECT -p "(Y/N)"
+echo -e "${NOCOLOR}"
+
 
 
 CURRENT_USER=$(whoami)
@@ -44,12 +52,6 @@ cd ..
 
 echo  -e "${GREEN}======== Erestele Systemd Service ========${NOCOLOR}"
 
-AUTOLOGIN_SERVICE_CONTENT="[Service]
-ExecStart=
-ExecStart=-/sbin/agetty --autologin $CURRENT_USER --noclear tty1 linux
-"
-
-
 SERVICE_CONTENT="[Unit]
 Description=Video Control Script
 After=network.target
@@ -66,13 +68,6 @@ User=$CURRENT_USER
 WantedBy=multi-user.target
 "
 
-# Erstelle die Autologin-Service-Datei
-echo "Erstelle die Autologin-Service-Datei unter /etc/systemd/system/getty@tty1.service.d/override.conf..."
-sudo mkdir -p /etc/systemd/system/getty@tty1.service.d/
-
-echo "$AUTOLOGIN_SERVICE_CONTENT" | sudo tee /etc/systemd/system/getty@tty1.service.d/override.conf > /dev/null
-
-
 # Erstelle der PiVideo Service-Datei
 echo "$SERVICE_CONTENT" | sudo tee /etc/systemd/system/$SERVICE_NAME > /dev/null
 
@@ -80,20 +75,23 @@ echo "$SERVICE_CONTENT" | sudo tee /etc/systemd/system/$SERVICE_NAME > /dev/null
 echo  -e "${GREEN}======== Lade Dienste neu ========${NOCOLOR}"
 sudo systemctl daemon-reload
 
-# Aktiviere den Service, damit er beim Booten gestartet wird
-echo  -e "${GREEN}======== Aktiviern des Dienstes ========${NOCOLOR}"
-echo "Aktiviere den Autologin-Service..."
-sudo systemctl enable getty@tty1.service
+if ["$USRSELECT" == "Y" ] || ["$USERSELECT" == "y"]
+then
+    USERSELECT=""
+    # Aktiviere den Service, damit er beim Booten gestartet wird
+    echo  -e "${GREEN}======== Aktiviern des Dienstes ========${NOCOLOR}"
 
-echo "Aktivire den PiVideo-Service..."
-sudo systemctl enable $SERVICE_NAME
+    echo "Aktivire den PiVideo-Service..."
+    sudo systemctl enable $SERVICE_NAME
 
-# Starten des Services
-echo  -e "${GREEN}======== Starente des Dienstes ========${NOCOLOR}"
-
-sudo systemctl start getty@tty1.service
-sudo systemctl start $SERVICE_NAME
-
+    # Starten des Services
+    echo  -e "${GREEN}======== Starente des Dienstes ========${NOCOLOR}"
+    sudo systemctl start $SERVICE_NAME
+else
+    USERSELECT= ""
+    echo -e "${CYAN_BACK} Automatic start of Playback disabled ${NOCOLOR}"
+    echo -e "${CYAN_BACK} Did not start Service, to start use \"sudo systemctl start pivideo.service\" ${NOCOLOR}"
+fi
 
 
 echo  -e "${GREEN}=========================================================${NOCOLOR}"
