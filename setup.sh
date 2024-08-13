@@ -1,9 +1,31 @@
 #! /bin/bash
 
+# Definition of colors for text output
 GREEN='\033[0;32m'
+CYAN_BACK='\x1b[46m'
+
 NOCOLOR='\033[0m'
 
 echo  -e "${GREEN}======== Starte Installation =========${NOCOLOR}"
+
+read  -p "Do you want to add a SystemD Service for Autostart [y|n]" INPUT
+SYSD=1
+
+case $INPUT in  
+  y|Y) SYSD=0 ;; 
+  n|N) SYSD=1 ;; 
+  *) echo "SystemD Service will not be Added...."  ;; 
+esac
+INPUT=""
+
+read  -p "Do you want to add GPIO Power Controle [y|n]" INPUT
+GPPower=1
+
+case $INPUT in  
+  y|Y) GPPower=0 ;; 
+  n|N) GPPower=1 ;; 
+  *) echo "GPIO Power controll will not be Addaded.........."  ;; 
+esac
 
 
 CURRENT_USER=$(whoami)
@@ -49,6 +71,9 @@ ExecStart=
 ExecStart=-/sbin/agetty --autologin $CURRENT_USER --noclear tty1 linux
 "
 
+# Erstelle die Autologin-Service-Datei
+echo "Erstelle die Autologin-Service-Datei unter /etc/systemd/system/getty@tty1.service.d/override.conf..."
+sudo mkdir -p /etc/systemd/system/getty@tty1.service.d/
 
 SERVICE_CONTENT="[Unit]
 Description=Video Control Script
@@ -66,12 +91,8 @@ User=$CURRENT_USER
 WantedBy=multi-user.target
 "
 
-# Erstelle die Autologin-Service-Datei
-echo "Erstelle die Autologin-Service-Datei unter /etc/systemd/system/getty@tty1.service.d/override.conf..."
-sudo mkdir -p /etc/systemd/system/getty@tty1.service.d/
 
 echo "$AUTOLOGIN_SERVICE_CONTENT" | sudo tee /etc/systemd/system/getty@tty1.service.d/override.conf > /dev/null
-
 
 # Erstelle der PiVideo Service-Datei
 echo "$SERVICE_CONTENT" | sudo tee /etc/systemd/system/$SERVICE_NAME > /dev/null
@@ -80,21 +101,26 @@ echo "$SERVICE_CONTENT" | sudo tee /etc/systemd/system/$SERVICE_NAME > /dev/null
 echo  -e "${GREEN}======== Lade Dienste neu ========${NOCOLOR}"
 sudo systemctl daemon-reload
 
-# Aktiviere den Service, damit er beim Booten gestartet wird
-echo  -e "${GREEN}======== Aktiviern des Dienstes ========${NOCOLOR}"
-echo "Aktiviere den Autologin-Service..."
-sudo systemctl enable getty@tty1.service
+if [ $SYSD -eq 0 ]
+then
+    # Aktiviere den Service, damit er beim Booten gestartet wird
+    echo  -e "${GREEN}======== Aktiviern des Dienstes ========${NOCOLOR}"
 
-echo "Aktivire den PiVideo-Service..."
-sudo systemctl enable $SERVICE_NAME
+    echo "Aktivire den PiVideo-Service..."
+    sudo systemctl enable $SERVICE_NAME
 
-# Starten des Services
-echo  -e "${GREEN}======== Starente des Dienstes ========${NOCOLOR}"
+    # Starten des Services
+    echo  -e "${GREEN}======== Starente des Dienstes ========${NOCOLOR}"
+    sudo systemctl start $SERVICE_NAME
+else
+    echo -e "${CYAN_BACK} Automatic start of Playback disabled ${NOCOLOR}"
+    echo -e "${CYAN_BACK} Did not start Service, to start use \"sudo systemctl start pivideo.service\" ${NOCOLOR}"
+fi
 
-sudo systemctl start getty@tty1.service
-sudo systemctl start $SERVICE_NAME
-
-
+if [ $GPPower -eq 0 ]
+then
+  echo "dtoverlay=gpio-shutdown,gpio-pin=3" | sudo tee /boot/config.txt > /dev/null
+fi
 
 echo  -e "${GREEN}=========================================================${NOCOLOR}"
 echo  -e "${GREEN}======== Das Script wurde Erfolgreich Ausgeführt ========${NOCOLOR}"
