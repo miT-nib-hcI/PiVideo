@@ -10,7 +10,7 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(BUTTON_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 loop_video = 'videos/loop.mp4'
-trigger_video = 'videos/trigger.mp4'
+trigger_video = 'videos/trigger.webm'
 
 # Funktion zum Abspielen eines Videos
 def play_video(video_file):

@@ -1,7 +1,8 @@
 # PiVideo
 
 ## TO-DO
-- Add GPIO Shutdown and Start option to Script [see](https://raspberrypi.stackexchange.com/questions/117013/raspberry-pi-4-b-gpio-boot-and-shutdown-buttons)
+-~~ Add GPIO Shutdown and Start option to Script [see](https://raspberrypi.stackexchange.com/questions/117013/raspberry-pi-4-b-gpio-boot-and-shutdown-buttons) ~~
+- Remove old filse when reinstalling
 
 ## Overview
 
