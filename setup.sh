@@ -8,7 +8,7 @@ NOCOLOR='\033[0m'
 
 echo  -e "${GREEN}======== Starte Installation =========${NOCOLOR}"
 
-read  -p "Do you want to add a SystemD Servide for Autostart [y|n]" INPUT
+read  -p "Do you want to add a SystemD Service for Autostart [y|n]" INPUT
 SYSD=1
 
 case $INPUT in  
@@ -103,7 +103,6 @@ sudo systemctl daemon-reload
 
 if [ $SYSD -eq 0 ]
 then
-    USERSELECT=""
     # Aktiviere den Service, damit er beim Booten gestartet wird
     echo  -e "${GREEN}======== Aktiviern des Dienstes ========${NOCOLOR}"
 
@@ -114,7 +113,6 @@ then
     echo  -e "${GREEN}======== Starente des Dienstes ========${NOCOLOR}"
     sudo systemctl start $SERVICE_NAME
 else
-    USERSELECT= ""
     echo -e "${CYAN_BACK} Automatic start of Playback disabled ${NOCOLOR}"
     echo -e "${CYAN_BACK} Did not start Service, to start use \"sudo systemctl start pivideo.service\" ${NOCOLOR}"
 fi
@@ -122,8 +120,6 @@ fi
 if [ $GPPower -eq 0]
 then
   echo "dtoverlay=gpio-shutdown,gpio-pin=3" | sudo tee /boot/config.txt > /dev/null
-else
-
 fi
 
 echo  -e "${GREEN}=========================================================${NOCOLOR}"
