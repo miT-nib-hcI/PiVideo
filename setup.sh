@@ -117,7 +117,7 @@ else
     echo -e "${CYAN_BACK} Did not start Service, to start use \"sudo systemctl start pivideo.service\" ${NOCOLOR}"
 fi
 
-if [ $GPPower -eq 0]
+if [ $GPPower -eq 0 ]
 then
   echo "dtoverlay=gpio-shutdown,gpio-pin=3" | sudo tee /boot/config.txt > /dev/null
 fi
