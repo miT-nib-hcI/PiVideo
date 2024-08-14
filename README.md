@@ -14,8 +14,8 @@ For installation download and run setup.sh. This will install the nesecary depen
 It will also create a SystemD service to automaticly start the program when the Pi is booted.
 
 ```bash
-wget -L "https://raw.githubusercontent.com/miT-nib-hcI/PiVideo/main/setup.sh"
-chmod 755 setup.sh
+wget -L "https://raw.githubusercontent.com/miT-nib-hcI/PiVideo/main/setup.sh" &&
+chmod 755 setup.sh &&
 ./setup.sh
 ```
 

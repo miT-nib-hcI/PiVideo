@@ -48,20 +48,55 @@ echo  -e "${GREEN}======== Holle Datein ========${NOCOLOR}"
 mkdir ~/PiVideo/ ~/PiVideo/videos/
 cd ~/PiVideo/
 
-wget -L "https://raw.githubusercontent.com/miT-nib-hcI/PiVideo/main/video.py"
+GH_URL="https://raw.githubusercontent.com/miT-nib-hcI/PiVideo/main/"
 
-wget -L "https://raw.githubusercontent.com/miT-nib-hcI/PiVideo/main/start.sh"
-wget -L "https://raw.githubusercontent.com/miT-nib-hcI/PiVideo/main/stop.sh"
-wget -L "https://raw.githubusercontent.com/miT-nib-hcI/PiVideo/main/reload.sh"
+if [ -f "~/PiVideo/video.py" ] # Checking if file exsists
+then
+  echo "Script exists, updateing ..."
+  rm ~/PiVideo/video.py # Removing Old File
+
+  wget -L $GH_URL"video.py"
+
+  rm ~/PiVideo/*.sh # Removing Old Files
+  wget -L $GH_URL"start.sh"
+  wget -L $GH_URL"stop.sh"
+  wget -L $GH_URL"reload"
+else
+  wget -L $GH_URL"video.py"
+  wget -L $GH_URL"start.sh"
+  wget -L $GH_URL"stop.sh"
+  wget -L $GH_URL"reload"
+fi
+
+
 
 chmod 755 *.sh
 
 echo  -e "${GREEN}======== Holle Videos========${NOCOLOR}"
 
 cd videos/
-wget -L "https://raw.githubusercontent.com/miT-nib-hcI/PiVideo/main/videos/loop.mp4"
-wget -L "https://raw.githubusercontent.com/miT-nib-hcI/PiVideo/main/videos/trigger.mp4"
 
+if ls ~/PiVideo/videos/loop* 1> /dev/null 2>&1; # Checking if file exsists
+then
+  echo "Video exists, updateing ..."
+  rm ~/PiVideo/videos/loop* # Removing Old Files
+
+  wget -L $GH_URL"videos/loop.mp4"
+else
+  wget -L $GH_URL"videos/loop.mp4"
+fi
+
+
+
+if ls ~/PiVideo/videos/loop* 1> /dev/null 2>&1; # Checking if file exsists
+then
+  echo "Video exists, updateing ..."
+  rm ~/PiVideo/videos/trigger* # Removing Old Files
+
+  wget -L $GH_URL"videos/trigger.webm"
+else
+  wget -L $GH_URL"videos/trigger.webm"
+fi
 cd ..
 
 echo  -e "${GREEN}======== Erestele Systemd Service ========${NOCOLOR}"
