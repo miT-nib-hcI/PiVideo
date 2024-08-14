@@ -45,8 +45,14 @@ sudo apt install vlc python3-rpi.gpio git -y
 
 echo  -e "${GREEN}======== Holle Datein ========${NOCOLOR}"
 
-mkdir ~/PiVideo/ ~/PiVideo/videos/
-cd ~/PiVideo/
+if ls ~/PiVideo/ 1> /dev/null 2>&1; # Checking if file exsists
+then
+  echo "Folders Already Exist Scipping"
+else
+  echo "Creating Folders"
+  mkdir ~/PiVideo/ ~/PiVideo/videos/
+  cd ~/PiVideo/
+fi
 
 GH_URL="https://raw.githubusercontent.com/miT-nib-hcI/PiVideo/main/"
 
