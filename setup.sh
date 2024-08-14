@@ -50,7 +50,7 @@ cd ~/PiVideo/
 
 GH_URL="https://raw.githubusercontent.com/miT-nib-hcI/PiVideo/main/"
 
-if [ -f "~/PiVideo/video.py" ] # Checking if file exsists
+if ls ~/PiVideo/video.py 1> /dev/null 2>&1; # Checking if file exsists
 then
   echo "Script exists, updateing ..."
   rm ~/PiVideo/video.py # Removing Old File
@@ -60,12 +60,12 @@ then
   rm ~/PiVideo/*.sh # Removing Old Files
   wget -L $GH_URL"start.sh"
   wget -L $GH_URL"stop.sh"
-  wget -L $GH_URL"reload"
+  wget -L $GH_URL"reload.sh"
 else
   wget -L $GH_URL"video.py"
   wget -L $GH_URL"start.sh"
   wget -L $GH_URL"stop.sh"
-  wget -L $GH_URL"reload"
+  wget -L $GH_URL"reload.sh"
 fi
 
 
@@ -88,7 +88,7 @@ fi
 
 
 
-if ls ~/PiVideo/videos/loop* 1> /dev/null 2>&1; # Checking if file exsists
+if ls ~/PiVideo/videos/trigger* 1> /dev/null 2>&1; # Checking if file exsists
 then
   echo "Video exists, updateing ..."
   rm ~/PiVideo/videos/trigger* # Removing Old Files
