@@ -1,121 +1,113 @@
-#! /bin/bash
+#!/bin/bash
 
-# Definition of colors for text output
+# Define colors for text output
 GREEN='\033[0;32m'
 CYAN_BACK='\x1b[46m'
-
+RED='\033[0;31m'
 NOCOLOR='\033[0m'
 
-echo  -e "${GREEN}======== Starte Installation =========${NOCOLOR}"
+# Function for error handling
+function check_error {
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}Error: $1${NOCOLOR}"
+        exit 1
+    fi
+}
 
-read  -p "Do you want to add a SystemD Service for Autostart [y|n]" INPUT
+
+# Check if the script is being run as root
+if [ "$(id -u)" -ne 0 ]; then
+    echo -e "${RED}This script must be run as root (e.g., with sudo).${NOCOLOR}"
+    exit 1
+fi
+
+echo -e "${GREEN}======== Starting Installation =========${NOCOLOR}"
+
+# Prompt the user to add a systemd service for autostart
+read -p "Do you want to add a systemd service for autostart? [y|n] " INPUT
 SYSD=1
 
+# Decide whether to set up systemd based on user input
 case $INPUT in  
-  y|Y) SYSD=0 ;; 
-  n|N) SYSD=1 ;; 
-  *) echo "SystemD Service will not be Added...."  ;; 
+    y|Y) SYSD=0 ;; 
+    n|N) SYSD=1 ;; 
+    *) echo "Systemd service will not be added...." ;; 
 esac
-INPUT=""
 
-read  -p "Do you want to add GPIO Power Controle [y|n]" INPUT
+# Prompt the user to add GPIO power control
+read -p "Do you want to add GPIO power control? [y|n] " INPUT
 GPPower=1
 
+# Decide whether to set up GPIO power control based on user input
 case $INPUT in  
-  y|Y) GPPower=0 ;; 
-  n|N) GPPower=1 ;; 
-  *) echo "GPIO Power controll will not be Addaded.........."  ;; 
+    y|Y) GPPower=0 ;; 
+    n|N) GPPower=1 ;; 
+    *) echo "GPIO power control will not be added.........." ;; 
 esac
 
-
-CURRENT_USER=$(whoami)
+# Variables for paths and files
+CURRENT_USER=$(logname)  # Get the username of the person who invoked the script
 SERVICE_NAME="pivideo.service"
-AUTOLOGIN_SERVICE_NAME="autologin@tty1.service"
-
 PYTHON_SCRIPT="/home/$CURRENT_USER/PiVideo/video.py"
-
-
-echo  -e "${GREEN}======== Führe Update durch =========${NOCOLOR}"
-
-sudo apt update && sudo apt upgrade -y
-
-echo  -e "${GREEN}======== Installiere Abhängigkeiten =========${NOCOLOR}"
-sudo apt install vlc python3-rpi.gpio git -y
-
-
-echo  -e "${GREEN}======== Holle Datein ========${NOCOLOR}"
-
-if ls ~/PiVideo/ 1> /dev/null 2>&1; # Checking if file exsists
-then
-  echo "Folders Already Exist Scipping"
-else
-  echo "Creating Folders"
-  mkdir ~/PiVideo/ ~/PiVideo/videos/
-  cd ~/PiVideo/
-fi
-
 GH_URL="https://raw.githubusercontent.com/miT-nib-hcI/PiVideo/main/"
 
-if ls ~/PiVideo/video.py 1> /dev/null 2>&1; # Checking if file exsists
-then
-  echo "Script exists, updateing ..."
-  rm ~/PiVideo/video.py # Removing Old File
 
-  wget -L $GH_URL"video.py"
-
-  rm ~/PiVideo/*.sh # Removing Old Files
-  wget -L $GH_URL"start.sh"
-  wget -L $GH_URL"stop.sh"
-  wget -L $GH_URL"reload.sh"
-else
-  wget -L $GH_URL"video.py"
-  wget -L $GH_URL"start.sh"
-  wget -L $GH_URL"stop.sh"
-  wget -L $GH_URL"reload.sh"
-fi
+# Update and install dependencies
+echo -e "${GREEN}======== Performing system update =========${NOCOLOR}"
+sudo apt update && sudo apt upgrade -y
+check_error "Failed to update packages."
 
 
+echo -e "${GREEN}======== Installing dependencies =========${NOCOLOR}"
+sudo apt install -y vlc python3-rpi.gpio git
+check_error "Failed to install dependencies."
 
+
+# Create directories and download files
+echo -e "${GREEN}======== Downloading files ========${NOCOLOR}"
+
+
+# Ensure directories exist and change to the correct directory
+mkdir -p /home/$CURRENT_USER/PiVideo/videos/
+cd /home/$CURRENT_USER/PiVideo/
+
+
+# Function to download a file and check for errors
+function download_file {
+    local file=$1
+    wget -q "$GH_URL$file"
+    check_error "Failed to download $file"
+}
+
+# Download necessary scripts
+download_file "video.py"
+download_file "start.sh"
+download_file "stop.sh"
+download_file "reload.sh"
+
+# Make the scripts executable
 chmod 755 *.sh
 
-echo  -e "${GREEN}======== Holle Videos========${NOCOLOR}"
+echo -e "${GREEN}======== Downloading videos ========${NOCOLOR}"
 
 cd videos/
 
-if ls ~/PiVideo/videos/loop* 1> /dev/null 2>&1; # Checking if file exsists
-then
-  echo "Video exists, updateing ..."
-  rm ~/PiVideo/videos/loop* # Removing Old Files
+# Download video files
+download_file "videos/loop.mp4"
+download_file "videos/trigger.webm"
 
-  wget -L $GH_URL"videos/loop.mp4"
-else
-  wget -L $GH_URL"videos/loop.mp4"
-fi
-
-
-
-if ls ~/PiVideo/videos/trigger* 1> /dev/null 2>&1; # Checking if file exsists
-then
-  echo "Video exists, updateing ..."
-  rm ~/PiVideo/videos/trigger* # Removing Old Files
-
-  wget -L $GH_URL"videos/trigger.webm"
-else
-  wget -L $GH_URL"videos/trigger.webm"
-fi
 cd ..
 
-echo  -e "${GREEN}======== Erestele Systemd Service ========${NOCOLOR}"
+# Create the systemd service for autologin and video control
+echo -e "${GREEN}======== Creating systemd service ========${NOCOLOR}"
 
+# Autologin service content
 AUTOLOGIN_SERVICE_CONTENT="[Service]
 ExecStart=
 ExecStart=-/sbin/agetty --autologin $CURRENT_USER --noclear tty1 linux
 "
 
-# Erstelle die Autologin-Service-Datei
-echo "Erstelle die Autologin-Service-Datei unter /etc/systemd/system/getty@tty1.service.d/override.conf..."
-sudo mkdir -p /etc/systemd/system/getty@tty1.service.d/
-
+# Video control service content
 SERVICE_CONTENT="[Unit]
 Description=Video Control Script
 After=network.target
@@ -132,39 +124,49 @@ User=$CURRENT_USER
 WantedBy=multi-user.target
 "
 
+# If the user opted for autostart, create the service files
+if [ $SYSD -eq 0 ]; then
+    # Creating Service file for Autologin of the Current User
+    echo "$AUTOLOGIN_SERVICE_CONTENT" | sudo tee /etc/systemd/system/getty@tty1.service.d/override.conf > /dev/null
+    check_error "Failed to create autologin service."
 
-echo "$AUTOLOGIN_SERVICE_CONTENT" | sudo tee /etc/systemd/system/getty@tty1.service.d/override.conf > /dev/null
+    # Craating Service file for Video Playback
+    echo "$SERVICE_CONTENT" | sudo tee /etc/systemd/system/$SERVICE_NAME > /dev/null
+    check_error "Failed to create PiVideo service."
 
-# Erstelle der PiVideo Service-Datei
-echo "$SERVICE_CONTENT" | sudo tee /etc/systemd/system/$SERVICE_NAME > /dev/null
+    # Reload systemd and enable the service
+    echo -e "${GREEN}======== Reloading services ========${NOCOLOR}"
+    sudo systemctl daemon-reload
+    check_error "Failed to reload systemd services."
 
-# Lade die Systemd-Dienste neu
-echo  -e "${GREEN}======== Lade Dienste neu ========${NOCOLOR}"
-sudo systemctl daemon-reload
-
-if [ $SYSD -eq 0 ]
-then
-    # Aktiviere den Service, damit er beim Booten gestartet wird
-    echo  -e "${GREEN}======== Aktiviern des Dienstes ========${NOCOLOR}"
-
-    echo "Aktivire den PiVideo-Service..."
+    echo -e "${GREEN}======== Enabling the service ========${NOCOLOR}"
     sudo systemctl enable $SERVICE_NAME
+    check_error "Failed to enable PiVideo service."
 
-    # Starten des Services
-    echo  -e "${GREEN}======== Starente des Dienstes ========${NOCOLOR}"
+    echo -e "${GREEN}======== Starting the service ========${NOCOLOR}"
     sudo systemctl start $SERVICE_NAME
+    check_error "Failed to start PiVideo service."
 else
-    echo -e "${CYAN_BACK} Automatic start of Playback disabled ${NOCOLOR}"
-    echo -e "${CYAN_BACK} Did not start Service, to start use \"sudo systemctl start pivideo.service\" ${NOCOLOR}"
+    # Creating Service file for Autologin of the Current User
+    echo "$AUTOLOGIN_SERVICE_CONTENT" | sudo tee /etc/systemd/system/getty@tty1.service.d/override.conf > /dev/null
+    check_error "Failed to create autologin service."
+    
+    # Creating Service file for Video Playback
+    echo "$SERVICE_CONTENT" | sudo tee /etc/systemd/system/$SERVICE_NAME > /dev/null
+    check_error "Failed to create PiVideo service."
+
+    echo -e "${CYAN_BACK}Automatic start of playback disabled${NOCOLOR}"
+    echo -e "${CYAN_BACK}Did not start service, to start use \"sudo systemctl start $SERVICE_NAME\"${NOCOLOR}"
 fi
 
-if [ $GPPower -eq 0 ]
-then
-  echo "dtoverlay=gpio-shutdown,gpio-pin=3" | sudo tee /boot/config.txt > /dev/null
+# Configure GPIO power control if the user opted in
+if [ $GPPower -eq 0 ]; then
+    echo "dtoverlay=gpio-shutdown,gpio-pin=3" | sudo tee -a /boot/config.txt > /dev/null
+    check_error "Failed to configure GPIO power control."
 fi
 
-echo  -e "${GREEN}=========================================================${NOCOLOR}"
-echo  -e "${GREEN}======== Das Script wurde Erfolgreich Ausgeführt ========${NOCOLOR}"
-echo  -e "${GREEN}=========================================================${NOCOLOR}"
+echo -e "${GREEN}=========================================================${NOCOLOR}"
+echo -e "${GREEN}======== The script was executed successfully ========${NOCOLOR}"
+echo -e "${GREEN}=========================================================${NOCOLOR}"
 
 exit 0

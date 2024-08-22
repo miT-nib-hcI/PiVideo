@@ -5,13 +5,14 @@
 - Remove old files when reinstalling
 
 ## Overview
-
 This is a collection of scripts which run a video in a loop until a Button connected to GPIO is Pressed.
 Then another video is played once.
 
 ## Installation
 For installation download and run setup.sh. This will install the nesecary dependencys, create the needed folder structure and download the Script.
 It will also create a SystemD service to automaticly start the program when the Pi is booted.
+
+**CAUTION: IF THE VIDEO FILES IN THE REPO HAVE CHANGED PLEASE CHECK THE SCRIPT IF THEY ARE CORRECT!**
 
 ```bash
 wget -L "https://raw.githubusercontent.com/miT-nib-hcI/PiVideo/main/setup.sh" &&
