@@ -1,20 +1,3 @@
-#! /bin/bash
-
-## A simple whitch stops the current service and Starts it again
-## used to run the current version of the script after modification
-
-# Definition of colors for the echo outputs
-GREEN='\033[0;32m'
-NOCOLOR='\033[0m'
-
-# Servicename which this script affects
-SERVICE_NAME="pivideo.service"
-
-echo  -e "${GREEN}======== Stoppe Dienst =========${NOCOLOR}"
-sudo systemctl stop $SERVICE_NAME
-
-
-echo  -e "${GREEN}======== Starte Dienst =========${NOCOLOR}"
-sudo systemctl start $SERVICE_NAME
-
-exit 0
+version https://git-lfs.github.com/spec/v1
+oid sha256:3050f26489db40d2f46197d0deab69a52429c9ee7547160798e3acda471556bc
+size 504
