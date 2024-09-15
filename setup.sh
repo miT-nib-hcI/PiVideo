@@ -59,7 +59,7 @@ check_error "Failed to update packages."
 
 
 echo -e "${GREEN}======== Installing dependencies =========${NOCOLOR}"
-sudo apt install -y vlc python3-rpi.gpio git
+sudo apt install -y vlc python3-rpi.gpio git fbi
 check_error "Failed to install dependencies."
 
 
