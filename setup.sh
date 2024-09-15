@@ -101,12 +101,6 @@ cd ..
 # Create the systemd service for autologin and video control
 echo -e "${GREEN}======== Creating systemd service ========${NOCOLOR}"
 
-# Autologin service content
-AUTOLOGIN_SERVICE_CONTENT="[Service]
-ExecStart=
-ExecStart=-/sbin/agetty --autologin $CURRENT_USER --noclear tty1 linux
-"
-
 # Video control service content
 SERVICE_CONTENT="[Unit]
 Description=Video Control Script
@@ -126,11 +120,10 @@ WantedBy=multi-user.target
 
 # If the user opted for autostart, create the service files
 if [ $SYSD -eq 0 ]; then
-    # Creating Service file for Autologin of the Current User
-    echo "$AUTOLOGIN_SERVICE_CONTENT" | sudo tee /etc/systemd/system/getty@tty1.service.d/override.conf > /dev/null
-    check_error "Failed to create autologin service."
+    # Disableing Login Promt for TTY1
+    sudo systemctl disable getty@tty1.service
 
-    # Craating Service file for Video Playback
+    # Creating Service file for Video Playback
     echo "$SERVICE_CONTENT" | sudo tee /etc/systemd/system/$SERVICE_NAME > /dev/null
     check_error "Failed to create PiVideo service."
 

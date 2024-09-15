@@ -1,42 +1,76 @@
-#! /usr/bin/python3
-
-import RPi.GPIO as GPIO
-import subprocess
+import os
 import time
+import RPi.GPIO as GPIO
+from subprocess import Popen, call
+import sys
 
-# GPIO-Setup
-BUTTON_PIN = 17  # Ersetze dies durch den tatsächlichen GPIO-Pin, den du verwendest
+os.system('sudo chvt 1')
+
+# Pfade zu den Dateien
+THUMBNAIL_IMAGE = "/home/tim/PiVideo/videos/thumb.jpeg"
+TRIGGER_VIDEO = "/home/tim/PiVideo/videos/trigger.mp4"
+LOG_FILE = "/home/tim/PiVideo/log.txt"
+
+# GPIO-Einstellungen
+BUTTON_PIN = 17
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(BUTTON_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-loop_video = 'videos/loop.mp4'
-trigger_video = 'videos/trigger.mp4'
+# Umleitung der Ausgaben in eine Log-Datei
+sys.stdout = open(LOG_FILE, "a")
+sys.stderr = open(LOG_FILE, "a")
 
-# Funktion zum Abspielen eines Videos
-def play_video(video_file):
-    subprocess.run(['cvlc', '--play-and-exit', '--fullscreen', '--no-video-title-show', video_file])
+def log_message(message):
+    """Schreibt eine Nachricht in die Log-Datei."""
+    timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    print(f"{timestamp} - {message}")
+    sys.stdout.flush()
 
-# Endlosschleife Video 1 starten
-loop_video = subprocess.Popen(['cvlc', '--loop', '--fullscreen', '--no-video-title-show', loop_video])
+def show_thumbnail(image_path):
+    """Zeigt das Thumbnail an."""
+    log_message(f"Displaying thumbnail: {image_path}")
+    call(['sudo', 'fbi', '-T', '1', '-d', '/dev/fb0', '-a','-noverbose', image_path])
 
-try:
-    while True:
-        # Überprüfen, ob der Button gedrückt wurde
-        button_state = GPIO.input(BUTTON_PIN)
-        if button_state == GPIO.LOW:  # Button gedrückt
-            # Stoppe das loop_video
-            loop_video.terminate()
+def close_thumbnail():
+    """Beendet fbi, um das Thumbnail zu schließen."""
+    log_message("Closing thumbnail.")
+    call(['sudo', 'killall', 'fbi'])
 
-            # Video 2 abspielen
-            play_video(trigger_video)
+def play_video(video_path):
+    """Spielt das Trigger-Video ab."""
+    log_message(f"Playing video: {video_path}")
+    p = Popen(['cvlc', '--play-and-exit', '--fullscreen', '--no-video-title-show', video_path])
+    p.wait()
 
-            # Nach dem Abspielen von Video 2 wieder Video 1 in Schleife starten
-            loop_video = subprocess.Popen(['cvlc', '--loop', '--fullscreen', '--no-video-title-show', loop_video])
 
-        time.sleep(0.1)  # Entprellen des Buttons
 
-except KeyboardInterrupt:
-    # Bei einem Tastaturabbruch das laufende Video stoppen und GPIO reinigen
-    loop_video.terminate()
-    GPIO.cleanup()
-    
+def main():
+    log_message("Starting main loop.")
+    try:
+        while True:
+            # Thumbnail anzeigen
+            show_thumbnail(THUMBNAIL_IMAGE)
+
+            # Warten, bis der Button gedrückt wird
+            while GPIO.input(BUTTON_PIN) == GPIO.HIGH:
+                time.sleep(0.1)
+
+            
+            # Video abspielen, wenn Button gedrückt wurde
+            log_message("Button pressed, playing trigger video.")
+            play_video(TRIGGER_VIDEO)
+
+            # fbi schließen, bevor das Video abgespielt wird
+            close_thumbnail()
+            # Nach dem Video wieder Thumbnail anzeigen
+            log_message("Trigger video finished, displaying thumbnail again.")
+
+    except KeyboardInterrupt:
+        log_message("Script interrupted by user.")
+    finally:
+        GPIO.cleanup()
+        log_message("GPIO cleanup completed. Exiting script.")
+
+if __name__ == "__main__":
+    log_message("Script started.")
+    main()
