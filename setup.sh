@@ -113,6 +113,10 @@ StandardOutput=inherit
 StandardError=inherit
 Restart=always
 User=$CURRENT_USER
+TTYPath=/dev/tty1
+StandardInput=tty
+RemainAfterExit=yes
+Type=simple
 
 [Install]
 WantedBy=multi-user.target
