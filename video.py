@@ -7,7 +7,7 @@ import sys
 os.system('sudo chvt 1')
 
 # Pfade zu den Dateien
-THUMBNAIL_IMAGE = "/home/tim/PiVideo/videos/thumb.jpeg"
+THUMBNAIL_IMAGE = "/home/tim/PiVideo/videos/thumb.jpg"
 TRIGGER_VIDEO = "/home/tim/PiVideo/videos/trigger.mp4"
 LOG_FILE = "/home/tim/PiVideo/log.txt"
 

@@ -93,8 +93,8 @@ echo -e "${GREEN}======== Downloading videos ========${NOCOLOR}"
 cd videos/
 
 # Download video files
-download_file "videos/loop.mp4"
-download_file "videos/trigger.webm"
+download_file "videos/thumb.jpg"
+download_file "videos/trigger.mp4"
 
 cd ..
 
